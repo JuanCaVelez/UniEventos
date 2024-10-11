@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Login
+import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,22 +30,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.unieventos.R
+import com.unieventos.model.Role
 import com.unieventos.ui.components.TextFieldForm
+import com.unieventos.utils.SharePrefencesUtils
+import com.unieventos.viewmodel.UsersViewModel
 
 @Composable
 fun LoginScreen(
     onNavigateToSignUp: () -> Unit,
-    onNavigateHome: () -> Unit
+    onNavigateHome: (Role) -> Unit,
+    usersViewModel: UsersViewModel
 ){
 
     val context = LocalContext.current
 
     Scaffold { padding ->
         LoginForm(
+            usersViewModel = usersViewModel,
             padding = padding,
             context = context,
             onNavigateToSignUp = onNavigateToSignUp,
-            onNavigateHome = onNavigateHome
+            onNavigateHome = onNavigateHome,
         )
     }
 }
@@ -54,11 +60,14 @@ fun LoginForm(
     padding: PaddingValues,
     context: Context,
     onNavigateToSignUp: () -> Unit,
-    onNavigateHome: () -> Unit
+    onNavigateHome: (Role) -> Unit,
+
+    usersViewModel: UsersViewModel
 ){
 
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+
 
     Column (
         modifier = Modifier
@@ -105,13 +114,24 @@ fun LoginForm(
         Button(
             enabled = email.isNotEmpty() && password.isNotEmpty(),
             onClick = {
-                if(email == "carlos@email.com" && password == "123456"){
-                    onNavigateHome()
+
+                val user = usersViewModel.login(email, password)
+
+                if(user != null){
+                    SharePrefencesUtils.savePreferences(context , user.id, user.role)
+                    usersViewModel.loadCurrentUser(user)
+                    onNavigateHome(user.role)
+
                 }else{
                     Toast.makeText(context, loginValidation, Toast.LENGTH_SHORT).show()
+
                 }
             }
         ) {
+            Icon(
+                imageVector = Icons.Rounded.Login,
+                contentDescription = "Icono inicio de sesión"
+            )
             Text(text = stringResource(id = R.string.loginButton))
         }
 
@@ -122,7 +142,7 @@ fun LoginForm(
         }
         ) {
             Icon(
-                imageVector = Icons.Rounded.Login,
+                imageVector = Icons.Rounded.PersonAdd,
                 contentDescription = "Icono registro"
             )
             Text(text = stringResource(id = R.string.registerButton))

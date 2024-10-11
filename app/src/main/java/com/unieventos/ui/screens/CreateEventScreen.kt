@@ -1,15 +1,20 @@
 package com.unieventos.ui.screens
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,27 +32,52 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import com.unieventos.R
+import com.unieventos.model.Event
 import com.unieventos.ui.components.DropDownMenu
 import com.unieventos.ui.components.TextFieldForm
+import com.unieventos.viewmodel.EventsViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreen(
-
+    eventsViewModel: EventsViewModel,
+    onNavigationBack: () -> Unit,
+    onNavigationHome: () -> Unit
 ){
     val context = LocalContext.current
 
-    Scaffold { padding ->
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(text = "Crear Evento")},
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            onNavigationBack()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
+        }
+    ) { padding ->
         CreateEventForm(
-            padding = padding,
+            padding = PaddingValues(0.dp),
             context = context,
+            eventsViewModel = eventsViewModel,
+            onNavigationHome = onNavigationHome
         )
     }
 }
@@ -57,12 +87,14 @@ fun CreateEventScreen(
 fun CreateEventForm(
     padding: PaddingValues,
     context: Context,
+    eventsViewModel: EventsViewModel,
+    onNavigationHome: () -> Unit
 ) {
 
     val citys = listOf("Armenia", "Pereira", "Manizales")
     val categories = listOf("Conciertos", "Obras de teatro", "Partidos Futbol")
 
-    var eventName by rememberSaveable { mutableStateOf("") }
+    var eventTitle by rememberSaveable { mutableStateOf("") }
     var eventAddress by rememberSaveable { mutableStateOf("") }
     var city by rememberSaveable { mutableStateOf("") }
     var category by rememberSaveable { mutableStateOf("") }
@@ -70,7 +102,8 @@ fun CreateEventForm(
     var quantity by rememberSaveable { mutableStateOf("") }
     var price by rememberSaveable { mutableStateOf("") }
     var dateOfEvent by rememberSaveable { mutableStateOf("") }
-    var showDatePicker by rememberSaveable { mutableStateOf (false) }
+    var imagenEvent by rememberSaveable { mutableStateOf("") }
+       var showDatePicker by rememberSaveable { mutableStateOf (false) }
     var datePickerState = rememberDatePickerState()
 
 
@@ -83,14 +116,14 @@ fun CreateEventForm(
         verticalArrangement = Arrangement.Center
     ){
         TextFieldForm(
-            value = eventName,
+            value = eventTitle,
             onValueChange = {
-                eventName = it
+                eventTitle = it
             },
             supportingText = "",
             label = stringResource(id = R.string.eventName),
             onValidate = {
-                eventName.isBlank()
+                eventTitle.isBlank()
             },
             KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
@@ -113,18 +146,23 @@ fun CreateEventForm(
             onValueChange = {
                 city = it
             },
-            items = citys
+            items = citys,
+            placeholder = "Seleccione la ciudad"
         )
 
+        Spacer(modifier = Modifier.height(10.dp))
+
         DropDownMenu(
+
             value = category,
             onValueChange = {
                 category = it
             },
-            items =  categories
-
+            items =  categories,
+            placeholder = "Seleccione la categoria"
         )
 
+        Spacer(modifier = Modifier.height(6.dp))
 
         TextFieldForm(
             value = description,
@@ -178,15 +216,51 @@ fun CreateEventForm(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.DateRange,
-                        contentDescription = "Icono de fecha de nacimiento"
+                        contentDescription = "Icono de fecha de evento"
                     )
                 }
             }
         )
 
+        TextFieldForm(
+            value = imagenEvent,
+            onValueChange = {
+                imagenEvent = it
+            },
+            supportingText = "",
+            label = stringResource(id = R.string.imageEvent),
+            onValidate = {
+                imagenEvent.isBlank()
+            },
+            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        val create = stringResource(id = R.string.eventCreate)
+
         Button(
             onClick = {
 
+                val quantityInt = quantity.toUIntOrNull()?: 0
+                val priceInt = price.toUIntOrNull()?: 0
+
+                    eventsViewModel.createEvent(
+                        Event(
+                        id = "",
+                        title = eventTitle,
+                        address = eventAddress,
+                        city = city,
+                        category = category,
+                        description = description,
+                        quantity = quantityInt,
+                        price = priceInt,
+                        date = dateOfEvent,
+                        imageUrl = imagenEvent
+                        )
+                    )
+                Toast.makeText(context, create, Toast.LENGTH_SHORT).show()
+                onNavigationHome()
             }
         ) {
             Text(text = stringResource(id = R.string.create))

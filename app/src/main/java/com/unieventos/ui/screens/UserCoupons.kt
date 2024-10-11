@@ -1,34 +1,36 @@
 package com.unieventos.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.unieventos.viewmodel.EventsViewModel
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CartScreen(
-    onNavigationBack: () -> Unit
+fun UserCouponScreen(
+    onNavigationBack: () ->  Unit,
 ){
-    val snackbarHostState = remember { SnackbarHostState() }
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Carrito de compras")},
+                title = { Text(text = "Mis cupones")},
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -36,24 +38,21 @@ fun CartScreen(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = null
                         )
-
                     }
                 }
             )
-        },
-        snackbarHost = {
-            SnackbarHost(snackbarHostState)
         }
-    ) {padding ->
-        Box(
+    ){padding ->
+        Box (
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-        ) {
+        ){
 
         }
+
     }
 }

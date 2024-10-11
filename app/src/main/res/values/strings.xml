@@ -29,4 +29,10 @@
     <string name="eventPrice">Precio del evento</string>
     <string name="eventDate">Fecha del evento</string>
     <string name="create">Crear evento</string>
+    <string name="eventCreate">Evento creado</string>
+    <string name="userCreate">Usuario creado</string>
+    <string name="imageEvent">Url de la imagen</string>
+    <string name="couponCreate">Cupón creado</string>
+    <string name="createCoupon">Crear cupón</string>
+    <string name="changePassword">Cambiar contraseña</string>
 </resources>

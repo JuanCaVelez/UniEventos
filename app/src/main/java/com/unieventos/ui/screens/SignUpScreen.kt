@@ -1,6 +1,7 @@
 package com.unieventos.ui.screens
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -35,24 +38,49 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.unieventos.R
+import com.unieventos.model.Role
+import com.unieventos.model.User
 import com.unieventos.ui.components.DropDownMenu
 import com.unieventos.ui.components.TextFieldForm
+import com.unieventos.viewmodel.UsersViewModel
+import dev.chrisbanes.haze.HazeState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
-    onNavigateToHome: () -> Unit
+    onNavigationBack: () -> Unit,
+    usersViewModel: UsersViewModel
 ){
 
     val context = LocalContext.current
 
-    Scaffold { padding ->
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(text = "Crear Usuario") },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            onNavigationBack()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
+        }
+    ) { padding ->
         SignUpForm(
-            padding = padding,
+            padding = PaddingValues(0.dp),
             context = context,
-            onNavigateToHome
+            onNavigationBack = onNavigationBack,
+            usersViewModel = usersViewModel
         )
     }
 }
@@ -62,7 +90,8 @@ fun SignUpScreen(
 fun SignUpForm(
     padding: PaddingValues,
     context: Context,
-    onNavigateToHome: () -> Unit
+    onNavigationBack: () -> Unit,
+    usersViewModel: UsersViewModel
 ){
 
     val citys = listOf("Armenia", "Pereira", "Manizales")
@@ -74,11 +103,6 @@ fun SignUpForm(
     var phone by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-
-
-    var dateOfBirth by rememberSaveable { mutableStateOf("") }
-    var showDatePicker by rememberSaveable { mutableStateOf (false) }
-    var datePickerState = rememberDatePickerState()
 
 
     Column (
@@ -120,8 +144,11 @@ fun SignUpForm(
             onValueChange = {
                 city = it
             },
-            items = citys
+            items = citys,
+            placeholder = "Seleccione la ciudad"
         )
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         TextFieldForm(
             value = address,
@@ -175,63 +202,26 @@ fun SignUpForm(
             KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
-        OutlinedTextField(
-            value = dateOfBirth,
-            onValueChange = {},
-            readOnly = true,
-            placeholder = {
-                Text(text = "Fecha de nacimiento")
-            },
-            trailingIcon = {
-                IconButton(
-                    onClick = {showDatePicker = true}
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.DateRange,
-                        contentDescription = "Icono de fecha de nacimiento"
-                    )
-                }
-            }
-        )
-
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             onClick = {
-                onNavigateToHome()
+                usersViewModel.createUser(User (
+                    name = name,
+                    id = cedula,
+                    city = city,
+                    address = address,
+                    phone = phone,
+                    role = Role.CLIENT,
+                    email = email,
+                    password = password
+
+                ))
+                Toast.makeText(context, context.getText(R.string.userCreate), Toast.LENGTH_SHORT).show()
+                onNavigationBack()
             }
         ) {
             Text(text = stringResource(id = R.string.registerButton))
-        }
-
-        if(showDatePicker){
-            DatePickerDialog(
-                onDismissRequest = {showDatePicker = false},
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            val selectedDate = datePickerState.selectedDateMillis
-                            if(selectedDate != null){
-                                val date = Date(selectedDate)
-                                val formattedDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(date)
-                                dateOfBirth = formattedDate
-                            }
-                            showDatePicker = false
-                        }
-                    ) {
-                       Text(text = stringResource(id = R.string.confirmLabel))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {showDatePicker = false}
-                    ) {
-                        Text(text = stringResource(id = R.string.cancelLabel))
-                    }
-                }
-            ) {
-                DatePicker(state = datePickerState)
-            }
         }
     }
 }
