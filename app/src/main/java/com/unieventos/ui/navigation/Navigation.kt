@@ -7,25 +7,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.unieventos.model.Role
-import com.unieventos.ui.screens.CartScreen
-import com.unieventos.ui.screens.CreateCouponScreen
-import com.unieventos.ui.screens.CreateEventScreen
-import com.unieventos.ui.screens.EditProfileScreen
-import com.unieventos.ui.screens.EventDetailScreen
-import com.unieventos.ui.screens.HomeAdminScreen
-import com.unieventos.ui.screens.HomeScreen
-import com.unieventos.ui.screens.LoginScreen
-import com.unieventos.ui.screens.PasswordRecoveryScreen
-import com.unieventos.ui.screens.SignUpScreen
-import com.unieventos.ui.screens.UserCouponScreen
+import com.unieventos.ui.screens.user.tabs.CartScreen
+import com.unieventos.ui.screens.admin.CreateEventScreen
+import com.unieventos.ui.screens.user.tabs.ProfileScreen
+import com.unieventos.ui.screens.admin.EventDetaiLAdminScreen
+import com.unieventos.ui.screens.user.EventDetailScreen
+import com.unieventos.ui.screens.admin.HomeAdminScreen
+import com.unieventos.ui.screens.user.HomeScreen
+import com.unieventos.ui.screens.account.LoginScreen
+import com.unieventos.ui.screens.account.PasswordRecoveryScreen
+import com.unieventos.ui.screens.account.SignUpScreen
 import com.unieventos.utils.SharePrefencesUtils
+import com.unieventos.viewmodel.CartViewModel
 import com.unieventos.viewmodel.EventsViewModel
 import com.unieventos.viewmodel.UsersViewModel
 
 @Composable
 fun Navigation(
     eventsViewModel: EventsViewModel,
-    usersViewModel: UsersViewModel
+    usersViewModel: UsersViewModel,
+    cartViewModel: CartViewModel
 ){
 
     val navController = rememberNavController()
@@ -48,18 +49,12 @@ fun Navigation(
     ){
         composable<RouteScreen.HomeAdmin> {
             HomeAdminScreen(
-                onNavigateToCreateCoupon = {
-                    navController.navigate(RouteScreen.CreateCoupon)
-                },
-                onNavigateToEditProfile = {
-                    navController.navigate(RouteScreen.EditProfile)
-                },
                 eventsViewModel = eventsViewModel,
                 onNavigateToCreateEvent = {
                     navController.navigate(RouteScreen.CreateEvent)
                 },
-                onNavigateToDetail = { eventId ->
-                    navController.navigate(RouteScreen.EventDetail(eventId))
+                onNavigateToEventDetailAdmin = { eventId ->
+                    navController.navigate(RouteScreen.EventDetailAdmin(eventId))
                 },
                 onLogout = {
                     SharePrefencesUtils.clearPreferences(context)
@@ -69,15 +64,13 @@ fun Navigation(
                         }
                         launchSingleTop = true
                     }
-                }
+                },
+                usersViewModel = usersViewModel
             )
         }
 
         composable<RouteScreen.Home> {
             HomeScreen(
-                onNavigateToEditProfile = {
-                    navController.navigate(RouteScreen.EditProfile)
-                },
                 eventsViewModel = eventsViewModel,
                 onNavigateToDetail = { eventId ->
                     navController.navigate(RouteScreen.EventDetail(eventId))
@@ -91,11 +84,12 @@ fun Navigation(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToCart = {
-                    navController.navigate(RouteScreen.Cart)
+                onNavigateToCart = { eventId ->
+                    navController.navigate(RouteScreen.Cart(eventId))
                 },
-                onNavigateToUsersCoupons = {
-                    navController.navigate(RouteScreen.UsersCoupons)
+                usersViewModel = usersViewModel,
+                onNavigateToPasswordRecovery = {
+                    navController.navigate(RouteScreen.PasswordRecovery)
                 }
             )
         }
@@ -133,7 +127,10 @@ fun Navigation(
         }
 
         composable<RouteScreen.Cart> {
+            val eventId = it.toRoute<RouteScreen.Cart>()
             CartScreen(
+                eventId = eventId.eventId,
+                eventsViewModel = eventsViewModel,
                 onNavigationBack = {
                     navController.popBackStack()
                 }
@@ -152,14 +149,17 @@ fun Navigation(
             )
         }
 
+        /*
         composable<RouteScreen.CreateCoupon>{
-            CreateCouponScreen(
+            CouponScreen(
                 onNavigationBack = {
                     navController.popBackStack()
                 }
             )
         }
+         */
 
+        /*
         composable<RouteScreen.UsersCoupons>{
             UserCouponScreen(
                 onNavigationBack = {
@@ -167,7 +167,7 @@ fun Navigation(
                 }
             )
         }
-
+        */
         composable<RouteScreen.PasswordRecovery> {
             PasswordRecoveryScreen(
                 onNavigationBack = {
@@ -177,7 +177,7 @@ fun Navigation(
         }
 
         composable<RouteScreen.EditProfile> {
-            EditProfileScreen(
+            ProfileScreen(
                 usersViewModel = usersViewModel,
                 onNavigateToPasswordRecovery = {
                     navController.navigate(RouteScreen.PasswordRecovery)
@@ -191,6 +191,18 @@ fun Navigation(
         composable<RouteScreen.EventDetail> {
             val eventId = it.toRoute<RouteScreen.EventDetail>()
             EventDetailScreen(
+                eventId = eventId.eventId,
+                eventsViewModel = eventsViewModel,
+                cartViewModel = cartViewModel,
+                onNavigationBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable<RouteScreen.EventDetailAdmin> {
+            val eventId = it.toRoute<RouteScreen.EventDetailAdmin>()
+            EventDetaiLAdminScreen(
                 eventId = eventId.eventId,
                 eventsViewModel = eventsViewModel,
                 onNavigationBack = {

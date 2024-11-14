@@ -35,4 +35,7 @@
     <string name="couponCreate">Cupón creado</string>
     <string name="createCoupon">Crear cupón</string>
     <string name="changePassword">Cambiar contraseña</string>
+    <string name="buttonBuy">Comprar</string>
+    <string name="city">Ciudad</string>
+    <string name="category">Categoria</string>
 </resources>

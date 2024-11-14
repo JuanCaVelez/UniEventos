@@ -1,5 +1,6 @@
-package com.unieventos.ui.screens
+package com.unieventos.ui.screens.user
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,14 +15,21 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -30,16 +38,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.unieventos.ui.components.ItemEvento
+import com.unieventos.model.CartItem
+import com.unieventos.ui.components.FloatingButton
+import com.unieventos.viewmodel.CartViewModel
 import com.unieventos.viewmodel.EventsViewModel
+import java.util.UUID
 
 @Composable
 fun EventDetailScreen(
     eventId : String,
     eventsViewModel: EventsViewModel,
-    onNavigationBack: () -> Unit
+    onNavigationBack: () -> Unit,
+    cartViewModel: CartViewModel
 ){
-
+    val context = LocalContext.current
+    var showDialog by rememberSaveable { mutableStateOf(false)}
     val event = eventsViewModel.findById(eventId)
     requireNotNull(event)
 
@@ -50,6 +63,14 @@ fun EventDetailScreen(
                 onNavigationBack = onNavigationBack
             )
         },
+        floatingActionButton = {
+            FloatingButton(
+                onClick = {
+                    showDialog = true
+                },
+                imageVector = Icons.Default.ShoppingCart
+            )
+        }
     ) { padding ->
 
         Column (
@@ -65,7 +86,7 @@ fun EventDetailScreen(
                     .fillMaxWidth()
                     .height(200.dp),
                 model = model,
-                contentDescription = null   ,
+                contentDescription = null,
                 contentScale = ContentScale.Crop
             )
             Column(
@@ -106,10 +127,57 @@ fun EventDetailScreen(
                     imageVector = Icons.Filled.AttachMoney,
                     text = event.price.toString()
                 )
-
             }
         }
+    }
 
+    if(showDialog){
+        AlertDialog(
+            onDismissRequest = {
+                showDialog = false
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        cartViewModel.addToCart(
+                            CartItem(
+                                id = UUID.randomUUID().toString(),
+                                eventId = event.id,
+                                eventName = event.title,
+                                eventImageUrl = event.imageUrl,
+                                locationName = " ",
+                                tickets = 3
+                            )
+                        )
+                        showDialog = false
+                        Toast.makeText(context, "Evento Agregado al carrito", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Text(
+                        text = "Confirmar"
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                    }
+                ) {
+                    Text(
+                        text = "Cancelar"
+                    )
+                }
+            },
+            title = {
+                Text(text = "Agregar al carrito")
+            },
+            text = {
+                Text(
+                    text = "¿Desea agregar este evento al carrito?"
+                )
+            }
+        )
     }
 
 }

@@ -1,4 +1,4 @@
-package com.unieventos.ui.screens
+package com.unieventos.ui.screens.admin.tabs
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
@@ -8,20 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,29 +33,16 @@ import com.unieventos.viewmodel.UsersViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(
+fun ProfileScreen(
     usersViewModel: UsersViewModel,
     onNavigateToPasswordRecovery: () -> Unit,
-    onNavigationBack: () -> Unit
 ){
     val context = LocalContext.current
 
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
-                title = {Text(text = "Editar Perfil")},
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            onNavigationBack()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
+                title = {Text(text = "Editar Perfil")}
             )
         }
     ){ padding ->
@@ -73,20 +52,7 @@ fun EditProfileScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(100.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.height(1.dp))
-
-            EditProfileForm(
+            EditProfileAdminForm(
                 padding = PaddingValues(0.dp),
                 context = context,
                 usersViewModel = usersViewModel,
@@ -97,7 +63,7 @@ fun EditProfileScreen(
 }
 
 @Composable
-fun EditProfileForm(
+fun EditProfileAdminForm(
     padding: PaddingValues,
     context: Context,
     usersViewModel: UsersViewModel,
@@ -106,7 +72,6 @@ fun EditProfileForm(
 ) {
 
     val citys = listOf("Armenia", "Cali", "Medellin")
-
     val user by usersViewModel.currentUser.collectAsState()
 
     if(user != null){
@@ -133,7 +98,7 @@ fun EditProfileForm(
                 supportingText = stringResource(id = R.string.nameValidation),
                 label = stringResource(id = R.string.nameLabel),
                 onValidate = { false},
-                KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
 
             TextFieldForm(
@@ -144,7 +109,7 @@ fun EditProfileForm(
                 supportingText = stringResource(id = R.string.cedulaValidation),
                 label = stringResource(id = R.string.cedulaLabel),
                 onValidate = {false},
-                KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
 
             DropDownMenu(
@@ -153,7 +118,8 @@ fun EditProfileForm(
                     city = it
                 },
                 items = citys,
-                placeholder = "Seleccione la ciudad"
+                placeholder = "Seleccione la ciudad",
+                label = stringResource(id = R.string.city),
             )
 
             TextFieldForm(
@@ -166,7 +132,7 @@ fun EditProfileForm(
                 onValidate = {
                     address.isBlank()
                 },
-                KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
 
             TextFieldForm(
@@ -179,7 +145,7 @@ fun EditProfileForm(
                 onValidate = {
                     phone.isBlank()
                 },
-                KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
             TextFieldForm(
@@ -192,7 +158,7 @@ fun EditProfileForm(
                 onValidate = {
                     email.isBlank()
                 },
-                KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 
             TextFieldForm(
@@ -205,7 +171,7 @@ fun EditProfileForm(
                 onValidate = {
                     password.isBlank()
                 },
-                KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 isPassword = true
             )
 

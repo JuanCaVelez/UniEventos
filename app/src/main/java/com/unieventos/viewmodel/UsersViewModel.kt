@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class UsersViewModel : ViewModel() {
+class UsersViewModel() : ViewModel() {
 
     private val _users = MutableStateFlow(emptyList<User>())
     private val _currentUser = MutableStateFlow<User?>(null)
@@ -26,17 +26,6 @@ class UsersViewModel : ViewModel() {
         _users.value += user
     }
 
-    /*
-    fun updateUser(updateUser: User){
-        _users.value = _users.value.map { user ->
-            if(user.id == updateUser.id){
-                updateUser
-            }else{
-                user
-            }
-        }
-    }
-    */
 
     fun login(email: String, password: String): User? {
         return _users.value.find { it.email == email && it.password == password }

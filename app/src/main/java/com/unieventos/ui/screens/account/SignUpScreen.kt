@@ -1,4 +1,4 @@
-package com.unieventos.ui.screens
+package com.unieventos.ui.screens.account
 
 import android.content.Context
 import android.widget.Toast
@@ -12,20 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,13 +32,10 @@ import androidx.compose.ui.unit.dp
 import com.unieventos.R
 import com.unieventos.model.Role
 import com.unieventos.model.User
+import com.unieventos.ui.components.AppButton
 import com.unieventos.ui.components.DropDownMenu
 import com.unieventos.ui.components.TextFieldForm
 import com.unieventos.viewmodel.UsersViewModel
-import dev.chrisbanes.haze.HazeState
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,7 +112,7 @@ fun SignUpForm(
             onValidate = {
                 name.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         TextFieldForm(
@@ -136,7 +125,7 @@ fun SignUpForm(
             onValidate = {
                 cedula.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         DropDownMenu(
@@ -145,7 +134,8 @@ fun SignUpForm(
                 city = it
             },
             items = citys,
-            placeholder = "Seleccione la ciudad"
+            placeholder = "Seleccione la ciudad",
+            label = stringResource(id = R.string.city)
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -160,7 +150,7 @@ fun SignUpForm(
             onValidate = {
                 address.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         TextFieldForm(
@@ -173,7 +163,7 @@ fun SignUpForm(
             onValidate = {
                 phone.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         TextFieldForm(
@@ -186,7 +176,7 @@ fun SignUpForm(
             onValidate = {
                 email.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
         TextFieldForm(
@@ -199,11 +189,29 @@ fun SignUpForm(
             onValidate = {
                 password.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        AppButton(
+            onClick = {
+                usersViewModel.createUser(User(
+                    name = name,
+                    id = cedula,
+                    city = city,
+                    address = address,
+                    phone = phone,
+                    role = Role.CLIENT,
+                    email = email,
+                    password = password
+                ))
+                Toast.makeText(context, context.getText(R.string.userCreate), Toast.LENGTH_SHORT).show()
+            },
+            text = stringResource(id = R.string.registerButton)
+        )
+
+        /*
         Button(
             onClick = {
                 usersViewModel.createUser(User (
@@ -223,5 +231,6 @@ fun SignUpForm(
         ) {
             Text(text = stringResource(id = R.string.registerButton))
         }
+         */
     }
 }

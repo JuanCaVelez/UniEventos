@@ -35,7 +35,7 @@ class EventsViewModel:ViewModel() {
         return listOf(
             Event(
                 id = "12",
-                title = "Concierto FEID",
+                title = "Concierto Ferxxo",
                 city = "Medellin",
                 address = "Cll 27N - 45",
                 category = "Conciertos",

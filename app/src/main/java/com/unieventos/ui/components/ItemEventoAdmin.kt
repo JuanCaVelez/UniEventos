@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -30,7 +31,7 @@ import com.unieventos.model.Event
 @Composable
 fun ItemEventoAdmin(
     event: Event,
-    onNavigateToDetail: (String) -> Unit
+    onNavigateToEventDetailAdmin: (String) -> Unit
 ){
 
     Card(
@@ -39,73 +40,69 @@ fun ItemEventoAdmin(
             .padding(3.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         onClick = {
-            onNavigateToDetail(event.id)
+            onNavigateToEventDetailAdmin(event.id)
         }
-    ){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        val model = ImageRequest.Builder(LocalContext.current)
-            .data(event.imageUrl)
-            .crossfade(true)
-            .build()
-
-        AsyncImage(
-            model = model,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(120.dp)
-        )
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Column(
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            val model = ImageRequest.Builder(LocalContext.current)
+                .data(event.imageUrl)
+                .crossfade(true)
+                .build()
 
-            Text(
-                text = event.title,
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Text(
-                text = event.category,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Row (
+            AsyncImage(
+                model = model,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .padding(1.dp)
+                    .size(120.dp)
+            )
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
             ) {
+
                 Text(
-                    text = event.city,
-                    style = MaterialTheme.typography.bodySmall
+                    text = event.title,
+                    style = MaterialTheme.typography.titleLarge
                 )
 
-            }
+                Spacer(modifier = Modifier.height(15.dp))
 
-            Row(
-                modifier = Modifier
-                    .padding(1.dp)
-            ){
                 Text(
-                    text = event.date,
-                    style = MaterialTheme.typography.bodySmall
+                    text = event.category,
+                    style = MaterialTheme.typography.bodyLarge
                 )
 
-            }
+                Row(
+                    modifier = Modifier
+                        .padding(1.dp)
+                ) {
+                    Text(
+                        text = event.city,
+                        style = MaterialTheme.typography.bodySmall
+                    )
 
+                }
+
+                Row(
+                    modifier = Modifier
+                        .padding(1.dp)
+                ) {
+                    Text(
+                        text = event.date,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
     }
-
-    }
-
 }

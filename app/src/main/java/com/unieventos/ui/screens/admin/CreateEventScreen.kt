@@ -1,5 +1,6 @@
-package com.unieventos.ui.screens
+package com.unieventos.ui.screens.admin
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -7,13 +8,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -21,6 +23,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,12 +35,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.unieventos.R
 import com.unieventos.model.Event
+import com.unieventos.ui.components.AppButton
 import com.unieventos.ui.components.DropDownMenu
 import com.unieventos.ui.components.TextFieldForm
 import com.unieventos.viewmodel.EventsViewModel
@@ -73,15 +78,23 @@ fun CreateEventScreen(
             )
         }
     ) { padding ->
-        CreateEventForm(
-            padding = PaddingValues(0.dp),
-            context = context,
-            eventsViewModel = eventsViewModel,
-            onNavigationHome = onNavigationHome
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            CreateEventForm(
+                padding = PaddingValues(0.dp),
+                context = context,
+                eventsViewModel = eventsViewModel,
+                onNavigationHome = onNavigationHome
+            )
+        }
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventForm(
@@ -103,7 +116,7 @@ fun CreateEventForm(
     var price by rememberSaveable { mutableStateOf("") }
     var dateOfEvent by rememberSaveable { mutableStateOf("") }
     var imagenEvent by rememberSaveable { mutableStateOf("") }
-       var showDatePicker by rememberSaveable { mutableStateOf (false) }
+    var showDatePicker by rememberSaveable { mutableStateOf (false) }
     var datePickerState = rememberDatePickerState()
 
 
@@ -125,7 +138,7 @@ fun CreateEventForm(
             onValidate = {
                 eventTitle.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         TextFieldForm(
@@ -138,7 +151,7 @@ fun CreateEventForm(
             onValidate = {
                 eventAddress.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         DropDownMenu(
@@ -147,7 +160,8 @@ fun CreateEventForm(
                 city = it
             },
             items = citys,
-            placeholder = "Seleccione la ciudad"
+            placeholder = "Seleccione la ciudad",
+            label = stringResource(id = R.string.city)
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -159,7 +173,8 @@ fun CreateEventForm(
                 category = it
             },
             items =  categories,
-            placeholder = "Seleccione la categoria"
+            placeholder = "Seleccione la categoria",
+            label = stringResource(id = R.string.category)
         )
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -174,7 +189,7 @@ fun CreateEventForm(
             onValidate = {
                 description.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         TextFieldForm(
@@ -187,7 +202,7 @@ fun CreateEventForm(
             onValidate = {
                 quantity.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         TextFieldForm(
@@ -200,7 +215,7 @@ fun CreateEventForm(
             onValidate = {
                 price.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         OutlinedTextField(
@@ -219,7 +234,17 @@ fun CreateEventForm(
                         contentDescription = "Icono de fecha de evento"
                     )
                 }
-            }
+            },
+            shape = RoundedCornerShape(15.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF22d35a),
+                focusedLabelColor = Color(0xFF22d35a),
+                unfocusedBorderColor = Color.White,
+                unfocusedLabelColor = Color.White
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         )
 
         TextFieldForm(
@@ -232,21 +257,20 @@ fun CreateEventForm(
             onValidate = {
                 imagenEvent.isBlank()
             },
-            KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         val create = stringResource(id = R.string.eventCreate)
 
-        Button(
+        AppButton(
             onClick = {
-
                 val quantityInt = quantity.toUIntOrNull()?: 0
                 val priceInt = price.toUIntOrNull()?: 0
 
-                    eventsViewModel.createEvent(
-                        Event(
+                eventsViewModel.createEvent(
+                    Event(
                         id = "",
                         title = eventTitle,
                         address = eventAddress,
@@ -257,14 +281,13 @@ fun CreateEventForm(
                         price = priceInt,
                         date = dateOfEvent,
                         imageUrl = imagenEvent
-                        )
                     )
+                )
                 Toast.makeText(context, create, Toast.LENGTH_SHORT).show()
                 onNavigationHome()
-            }
-        ) {
-            Text(text = stringResource(id = R.string.create))
-        }
+            },
+            text = stringResource(id = R.string.create)
+        )
 
         if(showDatePicker){
             DatePickerDialog(

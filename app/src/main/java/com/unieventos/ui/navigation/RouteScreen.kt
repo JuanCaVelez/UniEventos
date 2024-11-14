@@ -14,7 +14,7 @@ sealed class RouteScreen {
     data object SignUp: RouteScreen()
 
     @Serializable
-    data object Cart: RouteScreen()
+    data class Cart(val eventId: String): RouteScreen()
 
     @Serializable
     data object PasswordRecovery: RouteScreen()
@@ -37,5 +37,6 @@ sealed class RouteScreen {
     @Serializable
     data class EventDetail(val eventId: String): RouteScreen()
 
-
+    @Serializable
+    data class EventDetailAdmin(val eventId: String): RouteScreen()
 }
