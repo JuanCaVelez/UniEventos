@@ -1,18 +1,18 @@
 package com.unieventos.ui.screens.user
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.rounded.LocalActivity
 import androidx.compose.material.icons.rounded.Loyalty
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.ShoppingCart
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,18 +24,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.unieventos.ui.screens.admin.navigation.ItemTabAdmin
+import com.unieventos.ui.screens.user.bottomBar.BottomBarUser
+//import com.unieventos.ui.screens.user.bottomBar.BottomBarUser
 import com.unieventos.ui.screens.user.navigation.ItemTabUser
 import com.unieventos.ui.screens.user.navigation.NavHostUser
-import com.unieventos.ui.screens.user.tabs.UserCouponScreen
+import com.unieventos.viewmodel.CartViewModel
 import com.unieventos.viewmodel.EventsViewModel
 import com.unieventos.viewmodel.UsersViewModel
 import dev.chrisbanes.haze.HazeState
@@ -44,11 +49,12 @@ import dev.chrisbanes.haze.hazeChild
 @Composable
 fun HomeScreen(
     onNavigateToDetail: (String) -> Unit,
-        onNavigateToCart: (String) -> Unit,
+    onNavigateToCart: (String) -> Unit,
     onLogout: () -> Unit,
     onNavigateToPasswordRecovery: () -> Unit,
     eventsViewModel: EventsViewModel,
-    usersViewModel: UsersViewModel
+    usersViewModel: UsersViewModel,
+    cartViewModel: CartViewModel
 ) {
 
     val navController = rememberNavController()
@@ -64,8 +70,10 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-            BottomBarHome(
-                navController = navController
+            BottomBarUser(
+                navController = navController,
+                hazeState = hazeState,
+                cartViewModel = cartViewModel
             )
         }
     ) { paddingValues ->
@@ -78,6 +86,7 @@ fun HomeScreen(
                 navController = navController,
                 eventsViewModel = eventsViewModel,
                 usersViewModel = usersViewModel,
+                cartViewModel = cartViewModel,
                 onNavigateToDetail = onNavigateToDetail,
                 onNavigateToCart = onNavigateToCart
             ) {
@@ -123,88 +132,4 @@ fun TopBarHome(
         }
     )
 }
-
-@Composable
-fun BottomBarHome(
-    navController: NavHostController
-) {
-
-    NavigationBar {
-        NavigationBarItem(
-            icon = {
-                BadgedBox(
-                    badge = {
-                        Badge{
-                            Text(
-                                text = "2"
-                            )
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Loyalty,
-                        contentDescription = null
-                    )
-                }
-            },
-            onClick = {
-                navController.navigate(ItemTabUser.TabCoupons)
-            },
-            label = {
-                Text(text = "Cupones")
-            },
-            selected = false
-        )
-
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.LocalActivity,
-                    contentDescription = null
-                )
-            },
-            onClick = {
-                navController.navigate(ItemTabUser.TabEvents)
-            },
-            label = {
-                Text(text = "Eventos")
-            },
-            selected = false
-        )
-
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.ShoppingCart,
-                    contentDescription = null
-                )
-            },
-            onClick = {
-                navController.navigate(ItemTabUser.TabCart)
-            },
-            label = {
-                Text(text = "Carrito")
-            },
-            selected = false
-        )
-
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.Person,
-                    contentDescription = null
-                )
-            },
-            onClick = {
-                navController.navigate(ItemTabUser.TabProfile)
-            },
-            label = {
-                Text(text = "Perfil")
-            },
-            selected = false
-        )
-    }
-}
-
-
 

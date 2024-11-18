@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -16,9 +17,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,26 +41,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unieventos.R
 import com.unieventos.model.Role
+import com.unieventos.ui.components.AlertMessage
+import com.unieventos.ui.components.AlertType
 import com.unieventos.ui.components.TextFieldForm
+import com.unieventos.utils.RequestResult
 import com.unieventos.utils.SharePrefencesUtils
 import com.unieventos.viewmodel.UsersViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
+    onNavigateToPassworRecoveryScreen: () -> Unit,
     onNavigateToSignUp: () -> Unit,
-    onNavigateHome: (Role) -> Unit,
+    onNavigateHome: () -> Unit,
     usersViewModel: UsersViewModel
 ){
-
-    val context = LocalContext.current
 
     Scaffold { padding ->
         LoginForm(
             usersViewModel = usersViewModel,
             padding = padding,
-            context = context,
             onNavigateToSignUp = onNavigateToSignUp,
             onNavigateHome = onNavigateHome,
+            onNavigateToPassworRecoveryScreen = onNavigateToPassworRecoveryScreen
         )
     }
 }
@@ -65,11 +73,13 @@ fun LoginScreen(
 @Composable
 fun LoginForm(
     padding: PaddingValues,
-    context: Context,
     onNavigateToSignUp: () -> Unit,
-    onNavigateHome: (Role) -> Unit,
+    onNavigateHome: () -> Unit,
+    onNavigateToPassworRecoveryScreen: () -> Unit,
     usersViewModel: UsersViewModel
 ) {
+
+    val authResult by usersViewModel.authResult.collectAsState()
 
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -79,11 +89,10 @@ fun LoginForm(
             .padding(padding)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top // Usamos SpaceBetween para distribuir mejor
+        verticalArrangement = Arrangement.Top
     ) {
 
         Spacer(modifier = Modifier.height(300.dp))
-        // Parte superior: Espacio para los campos de texto
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -115,9 +124,38 @@ fun LoginForm(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 isPassword = true
             )
+            when(authResult){
+                null -> {
+
+                }
+                is RequestResult.Loading -> {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+                is RequestResult.Success -> {
+                    AlertMessage(
+                        type = AlertType.SUCCESS,
+                        message = (authResult as RequestResult.Success).message,
+                    )
+                    LaunchedEffect(Unit) {
+                        delay(2000)
+                        onNavigateHome()
+                        usersViewModel.resetAuthResult()
+                    }
+                }
+                is RequestResult.Failure -> {
+                    AlertMessage(
+                        type = AlertType.ERROR,
+                        message = (authResult as RequestResult.Success).message,
+                    )
+                    LaunchedEffect(Unit) {
+                        delay(4000)
+                        usersViewModel.resetAuthResult()
+                    }
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.height(200.dp))
+        Spacer(modifier = Modifier.height(170.dp))
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -130,13 +168,12 @@ fun LoginForm(
                 email = email,
                 password = password,
                 usersViewModel = usersViewModel,
-                context = context,
                 onNavigateHome = onNavigateHome
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            val annotatedText = buildAnnotatedString {
+            val signUp = buildAnnotatedString {
                 append("No tienes cuenta? ")
                 pushStringAnnotation(tag = "signup", annotation = "signup_screen")
                 withStyle(
@@ -151,9 +188,32 @@ fun LoginForm(
             }
 
             Text(
-                text = annotatedText,
+                text = signUp,
                 modifier = Modifier.clickable {
                     onNavigateToSignUp()
+                }
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            val passwordRecovery = buildAnnotatedString {
+                append("Olvidaste tu contraseña? ")
+                pushStringAnnotation(tag = "password", annotation = "password_screen")
+                withStyle(
+                    style = androidx.compose.ui.text.SpanStyle(
+                        color = androidx.compose.ui.graphics.Color(0xFF42d322),
+                        textDecoration = TextDecoration.Underline
+                    )
+                ) {
+                    append("Cambiala")
+                }
+                pop()
+            }
+
+            Text(
+                text = passwordRecovery,
+                modifier = Modifier.clickable {
+                    onNavigateToPassworRecoveryScreen()
                 }
             )
         }
@@ -165,8 +225,7 @@ fun LoginButton(
     email: String,
     password: String,
     usersViewModel: UsersViewModel,
-    context: Context,
-    onNavigateHome: (Role) -> Unit
+    onNavigateHome: () -> Unit
 ){
     Button(
         enabled = email.isNotEmpty() && password.isNotEmpty(),
@@ -174,18 +233,7 @@ fun LoginButton(
             .height(50.dp)
             .width(160.dp),
         onClick = {
-            val user = usersViewModel.login(email, password)
-
-            if (user != null){
-                SharePrefencesUtils.savePreferences(context, user.id, user.role)
-                usersViewModel.loadCurrentUser(user)
-                onNavigateHome(user.role)
-
-                val welcomeMessage = context.getString(R.string.welcomeMessage) + " " + user.name
-                Toast.makeText(context, welcomeMessage, Toast.LENGTH_SHORT).show()
-            }else{
-                Toast.makeText(context, R.string.loginValidation , Toast.LENGTH_SHORT).show()
-            }
+            usersViewModel.login(email, password)
         },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF42d322),

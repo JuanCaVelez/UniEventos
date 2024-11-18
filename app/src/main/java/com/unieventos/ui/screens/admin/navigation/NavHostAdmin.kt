@@ -17,10 +17,11 @@ fun NavHostAdmin(
     navController: NavHostController,
     eventsViewModel: EventsViewModel,
     usersViewModel: UsersViewModel,
-    onNavigateToEventDetailAdmin: (String) -> Unit,
+    onNavigateToEventDetailAdmin: (String) -> Unit
 ) {
     NavHost(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         navController = navController,
         startDestination = ItemTabAdmin.TabEvents
     ) {

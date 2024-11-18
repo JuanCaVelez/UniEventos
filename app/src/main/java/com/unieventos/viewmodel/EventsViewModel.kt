@@ -1,36 +1,94 @@
 package com.unieventos.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.unieventos.model.Event
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class EventsViewModel:ViewModel() {
+
+    val db = Firebase.firestore
     private val _events = MutableStateFlow(emptyList<Event>())
     val events : StateFlow<List<Event>> = _events.asStateFlow()
 
     init {
-        _events.value = getEventsList()
+        loadEvents()
+    }
+
+    fun loadEvents(){
+        viewModelScope.launch {
+            _events.value = getEventsList()
+        }
+    }
+
+    private suspend fun getEventsList(): List<Event>{
+        val snapshot = db.collection("events")
+            .get()
+            .await()
+
+        return snapshot.documents.mapNotNull {
+            val event = it.toObject(Event::class.java)
+            requireNotNull(event)
+            event.id = it.id
+            event
+        }
     }
 
     fun createEvent(event: Event){
-        _events.value +=event
+        viewModelScope.launch {
+            db.collection("events")
+                .add(event)
+                .await()
+
+            _events.value = getEventsList()
+        }
     }
 
-    fun deleteEvent(event: Event){
-        _events.value -=event
+    fun deleteEvent(eventId: String){
+        viewModelScope.launch {
+            db.collection("events")
+                .document(eventId)
+                .delete()
+                .await()
+
+            _events.value = getEventsList()
+        }
+
     }
 
-    fun findById(id: String): Event?{
-        return _events.value.find { it.id == id }
+    fun updateEvent(event: Event){
+        viewModelScope.launch{
+            db.collection("events")
+                .document(event.id)
+                .set(event)
+                .await()
+
+            _events.value = getEventsList()
+        }
+    }
+
+    suspend fun findById(id: String): Event?{
+        val snapshot = db.collection("events")
+            .document(id)
+            .get()
+            .await()
+
+        val event = snapshot.toObject(Event::class.java)
+        event?.id = snapshot.id
+        return event
     }
 
     fun searchEvent(query: String): List<Event>{
-        return _events.value.filter { it.title.contains(query, ignoreCase = true) }
+        return _events.value.filter { event -> event.title.contains(query, ignoreCase = true) }
     }
 
-    private fun getEventsList(): List<Event>{
+    /* private fun getEventsList(): List<Event>{
 
         return listOf(
             Event(
@@ -70,5 +128,5 @@ class EventsViewModel:ViewModel() {
                 imageUrl = "https://media.tycsports.com/files/2021/08/12/318926/once-caldas-recibira-a-pereira-por-la-fecha-5_862x485_wmk.jpg",
             )
         )
-    }
+    }*/
 }

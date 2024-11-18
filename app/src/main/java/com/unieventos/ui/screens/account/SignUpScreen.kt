@@ -16,9 +16,13 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,14 +36,20 @@ import androidx.compose.ui.unit.dp
 import com.unieventos.R
 import com.unieventos.model.Role
 import com.unieventos.model.User
+import com.unieventos.ui.components.AlertMessage
+import com.unieventos.ui.components.AlertType
 import com.unieventos.ui.components.AppButton
 import com.unieventos.ui.components.DropDownMenu
 import com.unieventos.ui.components.TextFieldForm
+import com.unieventos.ui.components.TextFieldFormPassword
+import com.unieventos.utils.RequestResult
 import com.unieventos.viewmodel.UsersViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
+    onNavigateHome: () -> Unit,
     onNavigationBack: () -> Unit,
     usersViewModel: UsersViewModel
 ){
@@ -82,6 +92,8 @@ fun SignUpForm(
     onNavigationBack: () -> Unit,
     usersViewModel: UsersViewModel
 ){
+
+    val authResult by usersViewModel.authResult.collectAsState()
 
     val citys = listOf("Armenia", "Pereira", "Manizales")
 
@@ -179,7 +191,7 @@ fun SignUpForm(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
-        TextFieldForm(
+        TextFieldFormPassword(
             value = password,
             onValueChange = {
                 password = it
@@ -189,14 +201,16 @@ fun SignUpForm(
             onValidate = {
                 password.isBlank()
             },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            isPassword = true
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
         AppButton(
             onClick = {
-                usersViewModel.createUser(User(
+                usersViewModel.createUser(
+                    User(
                     name = name,
                     id = cedula,
                     city = city,
@@ -205,32 +219,40 @@ fun SignUpForm(
                     role = Role.CLIENT,
                     email = email,
                     password = password
-                ))
-                Toast.makeText(context, context.getText(R.string.userCreate), Toast.LENGTH_SHORT).show()
+                    )
+                )
             },
             text = stringResource(id = R.string.registerButton)
         )
 
-        /*
-        Button(
-            onClick = {
-                usersViewModel.createUser(User (
-                    name = name,
-                    id = cedula,
-                    city = city,
-                    address = address,
-                    phone = phone,
-                    role = Role.CLIENT,
-                    email = email,
-                    password = password
+         when(authResult){
+             null -> {
 
-                ))
-                Toast.makeText(context, context.getText(R.string.userCreate), Toast.LENGTH_SHORT).show()
-                onNavigationBack()
-            }
-        ) {
-            Text(text = stringResource(id = R.string.registerButton))
-        }
-         */
+             }
+             is RequestResult.Loading -> {
+                 LinearProgressIndicator()
+             }
+             is RequestResult.Success -> {
+                AlertMessage(
+                    type = AlertType.SUCCESS,
+                    message = (authResult as RequestResult.Success).message
+                )
+                 LaunchedEffect(Unit) {
+                     delay(2000)
+                     onNavigationBack()
+                     usersViewModel.resetAuthResult()
+                 }
+             }
+             is RequestResult.Failure -> {
+                 AlertMessage(
+                     type = AlertType.ERROR,
+                     message = (authResult as RequestResult.Success).message
+                 )
+                 LaunchedEffect(Unit) {
+                     delay(2000)
+                     usersViewModel.resetAuthResult()
+                 }
+             }
+         }
     }
 }

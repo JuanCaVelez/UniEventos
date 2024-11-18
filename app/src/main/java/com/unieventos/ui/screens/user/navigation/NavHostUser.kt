@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.unieventos.ui.screens.user.tabs.CartScreen
 import com.unieventos.ui.screens.user.tabs.UserCouponScreen
+import com.unieventos.viewmodel.CartViewModel
 import com.unieventos.viewmodel.EventsViewModel
 import com.unieventos.viewmodel.UsersViewModel
 
@@ -16,6 +17,7 @@ fun NavHostUser(
     navController: NavHostController,
     eventsViewModel: EventsViewModel,
     usersViewModel: UsersViewModel,
+    cartViewModel: CartViewModel,
     onNavigateToDetail: (String) -> Unit,
     onNavigateToCart: (String) -> Unit,
     onNavigateToPasswordRecovery: () -> Unit,
@@ -47,11 +49,7 @@ fun NavHostUser(
 
         composable<ItemTabUser.TabCart> {
             CartScreen(
-                eventId = id.toString(),
-                eventsViewModel = eventsViewModel,
-                onNavigationBack = {
-                    navController.popBackStack()
-                }
+                cartViewModel = cartViewModel
             )
         }
 

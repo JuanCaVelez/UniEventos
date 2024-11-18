@@ -7,15 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Logout
-import androidx.compose.material.icons.rounded.LocalActivity
-import androidx.compose.material.icons.rounded.Loyalty
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -27,16 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.unieventos.ui.components.FloatingButton
-import com.unieventos.ui.screens.admin.tabs.CouponScreen
-import com.unieventos.ui.screens.admin.tabs.EventsScreen
-import com.unieventos.ui.screens.admin.navigation.ItemTabAdmin
+import com.unieventos.ui.screens.admin.bottomBar.BottomBarAdmin
 import com.unieventos.ui.screens.admin.navigation.NavHostAdmin
-import com.unieventos.ui.screens.admin.tabs.ProfileScreen
 import com.unieventos.viewmodel.EventsViewModel
 import com.unieventos.viewmodel.UsersViewModel
 import dev.chrisbanes.haze.HazeState
@@ -63,8 +52,9 @@ fun HomeAdminScreen(
             )
         },
         bottomBar = {
-            BottomBarHomeAdmin(
-                navController = navController
+            BottomBarAdmin(
+                navController = navController,
+                hazeState = hazeState
             )
         },
         snackbarHost = {
@@ -79,10 +69,10 @@ fun HomeAdminScreen(
             NavHostAdmin(
                 navController = navController,
                 eventsViewModel = eventsViewModel,
-                usersViewModel = usersViewModel
-            ) {
+                usersViewModel = usersViewModel,
+                onNavigateToEventDetailAdmin = onNavigateToEventDetailAdmin
+            )
 
-            }
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomEnd
@@ -127,75 +117,6 @@ fun TopBarHomeAdmin(
         }
     )
 }
-
-
-@Composable
-fun BottomBarHomeAdmin(
-    navController: NavHostController,
-) {
-    NavigationBar {
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.Loyalty,
-                    contentDescription = null,
-                )
-            },
-            onClick = {
-                navController.navigate(ItemTabAdmin.TabCoupons) {
-                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                }
-            },
-            label = {
-                Text(
-                    text = "Cupones",
-                )
-            },
-            selected = false
-        )
-
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.LocalActivity,
-                    contentDescription = null,
-                )
-            },
-            onClick = {
-                navController.navigate(ItemTabAdmin.TabEvents) {
-                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                }
-            },
-            label = {
-                Text(
-                    text = "Eventos",
-                )
-            },
-            selected = false
-        )
-
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Rounded.Person,
-                    contentDescription = null,
-                )
-            },
-            onClick = {
-                navController.navigate(ItemTabAdmin.TabProfile) {
-                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                }
-            },
-            label = {
-                Text(
-                    text = "Perfil",
-                )
-            },
-            selected = false
-        )
-    }
-}
-
 
 
 

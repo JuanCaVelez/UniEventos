@@ -5,4 +5,5 @@ data class OrderItem(
     val idEvent: String,
     val numberTickets: Int,
     val localeName: String,
+    val price: Double = 0.0
 )

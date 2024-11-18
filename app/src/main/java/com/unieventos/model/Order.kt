@@ -1,9 +1,9 @@
 package com.unieventos.model
 
 data class Order(
-    val id: String,
-    val date: String,
-    val total: Double,
-    val items: List<OrderItem>,
-    val userId: String,
+    var id: String = "",
+    val date: String = "",
+    val total: Double = 0.0,
+    val items: List<OrderItem> = emptyList(),
+    val userId: String = "",
 )

@@ -1,6 +1,8 @@
 package com.unieventos.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,6 +31,7 @@ fun Navigation(
     cartViewModel: CartViewModel
 ){
 
+    val currentUser by usersViewModel.currentUser.collectAsState()
     val navController = rememberNavController()
     val context = LocalContext.current
 
@@ -72,6 +75,7 @@ fun Navigation(
         composable<RouteScreen.Home> {
             HomeScreen(
                 eventsViewModel = eventsViewModel,
+                cartViewModel = cartViewModel,
                 onNavigateToDetail = { eventId ->
                     navController.navigate(RouteScreen.EventDetail(eventId))
                 },
@@ -99,21 +103,32 @@ fun Navigation(
                 onNavigateToSignUp = {
                     navController.navigate(RouteScreen.SignUp)
                 },
-                onNavigateHome = { role ->
+                onNavigateHome = {
 
-                    val home = if(role == Role.CLIENT){
-                        RouteScreen.Home
-                    }else{
-                        RouteScreen.HomeAdmin
-                    }
-                    navController.navigate(home){
-                        popUpTo(0){
-                            inclusive = true
+                    val user = currentUser
+
+                    if(user != null){
+
+                        val role = user.role
+                        SharePrefencesUtils.savePreferences(context, user.id, user.role)
+
+                        val home = if(role == Role.CLIENT){
+                            RouteScreen.Home
+                        }else{
+                            RouteScreen.HomeAdmin
                         }
-                        launchSingleTop = true
+                        navController.navigate(home){
+                            popUpTo(0){
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
                     }
                 },
-                usersViewModel = usersViewModel
+                usersViewModel = usersViewModel,
+                onNavigateToPassworRecoveryScreen = {
+                    navController.navigate(RouteScreen.PasswordRecovery)
+                }
             )
         }
 
@@ -122,17 +137,9 @@ fun Navigation(
                 onNavigationBack = {
                     navController.popBackStack()
                 },
-                usersViewModel = usersViewModel
-            )
-        }
-
-        composable<RouteScreen.Cart> {
-            val eventId = it.toRoute<RouteScreen.Cart>()
-            CartScreen(
-                eventId = eventId.eventId,
-                eventsViewModel = eventsViewModel,
-                onNavigationBack = {
-                    navController.popBackStack()
+                usersViewModel = usersViewModel,
+                onNavigateHome = {
+                    navController.navigate(RouteScreen.Login)
                 }
             )
         }
@@ -207,6 +214,9 @@ fun Navigation(
                 eventsViewModel = eventsViewModel,
                 onNavigationBack = {
                     navController.popBackStack()
+                },
+                onNavigationHome = {
+                    navController.navigate(RouteScreen.HomeAdmin)
                 }
             )
         }

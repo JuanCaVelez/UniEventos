@@ -29,8 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,16 +55,29 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventScreen(
-    eventsViewModel: EventsViewModel,
     onNavigationBack: () -> Unit,
+    evevtId: String? = null,
+    eventsViewModel: EventsViewModel,
     onNavigationHome: () -> Unit
 ){
+    var event: Event? by remember { mutableStateOf(null) }
+    val createLabel = "Crear"
+    var text by remember { mutableStateOf(createLabel) }
     val context = LocalContext.current
 
+    if (evevtId != null){
+        text = createLabel
+        LaunchedEffect(evevtId) {
+            event = eventsViewModel.findById(evevtId)
+        }
+    }
+
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "Crear Evento")},
+                title = { Text(text = "$text evento")},
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -118,8 +133,6 @@ fun CreateEventForm(
     var imagenEvent by rememberSaveable { mutableStateOf("") }
     var showDatePicker by rememberSaveable { mutableStateOf (false) }
     var datePickerState = rememberDatePickerState()
-
-
 
     Column (
         modifier = Modifier
@@ -266,9 +279,6 @@ fun CreateEventForm(
 
         AppButton(
             onClick = {
-                val quantityInt = quantity.toUIntOrNull()?: 0
-                val priceInt = price.toUIntOrNull()?: 0
-
                 eventsViewModel.createEvent(
                     Event(
                         id = "",
@@ -277,10 +287,11 @@ fun CreateEventForm(
                         city = city,
                         category = category,
                         description = description,
-                        quantity = quantityInt,
-                        price = priceInt,
+                        quantity = quantity,
+                        price = price,
                         date = dateOfEvent,
-                        imageUrl = imagenEvent
+                        imageUrl = imagenEvent,
+                        //locations = locations
                     )
                 )
                 Toast.makeText(context, create, Toast.LENGTH_SHORT).show()
