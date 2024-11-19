@@ -145,7 +145,7 @@ fun LoginForm(
                 is RequestResult.Failure -> {
                     AlertMessage(
                         type = AlertType.ERROR,
-                        message = (authResult as RequestResult.Success).message,
+                        message = (authResult as RequestResult.Failure).messageError,
                     )
                     LaunchedEffect(Unit) {
                         delay(4000)

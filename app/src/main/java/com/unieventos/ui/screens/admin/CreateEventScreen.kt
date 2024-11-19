@@ -2,10 +2,18 @@ package com.unieventos.ui.screens.admin
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +24,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.Upload
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -42,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.unieventos.R
 import com.unieventos.model.Event
 import com.unieventos.ui.components.AppButton
@@ -133,6 +144,23 @@ fun CreateEventForm(
     var imagenEvent by rememberSaveable { mutableStateOf("") }
     var showDatePicker by rememberSaveable { mutableStateOf (false) }
     var datePickerState = rememberDatePickerState()
+
+
+    val fileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            Log.e("URI", uri.toString())
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if(it){
+            Toast.makeText(context, "Permiso concedido", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(context, "Permiso denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column (
         modifier = Modifier
@@ -260,18 +288,56 @@ fun CreateEventForm(
                 .padding(16.dp)
         )
 
-        TextFieldForm(
-            value = imagenEvent,
-            onValueChange = {
-                imagenEvent = it
-            },
-            supportingText = "",
-            label = stringResource(id = R.string.imageEvent),
-            onValidate = {
-                imagenEvent.isBlank()
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            TextFieldForm(
+                modifier = Modifier.weight(0.8f),
+                value = imagenEvent,
+                onValueChange = {
+                    imagenEvent = it
+                },
+                supportingText = "",
+                label = stringResource(id = R.string.imageEvent),
+                onValidate = {
+                    imagenEvent.isBlank()
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
+            Button(
+                onClick = {
+                    val permissionCheckResult = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.READ_MEDIA_IMAGES
+                        )
+                    }else{
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+                        )
+                    }
+
+                    if(permissionCheckResult == PackageManager.PERMISSION_GRANTED){
+                        fileLauncher.launch("image/*")
+                    }else{
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                            permissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
+                        }else{
+                            permissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                        }
+                    }
+                }
+
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Upload,
+                    contentDescription = null
+                )
+            }
+        }
+
 
         Spacer(modifier = Modifier.height(10.dp))
 

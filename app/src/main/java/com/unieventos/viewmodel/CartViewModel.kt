@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.asStateFlow
         private val _events = MutableStateFlow( emptyList<CartItem>() )
         val events: StateFlow< List<CartItem> > = _events.asStateFlow()
 
+        init{
+            _events.value = addItems()
+        }
         fun addToCart(event: CartItem){
             _events.value += event
         }
@@ -34,5 +37,27 @@ import kotlinx.coroutines.flow.asStateFlow
 
         fun countItems(): Int{
             return _events.value.size
+        }
+
+        /*
+        fun totalPrice(): Float{
+            return _events.value.sumOf {  }
+        }
+         */
+
+        fun clearCart(){
+            _events.value = emptyList()
+        }
+
+        fun addItems(): List<CartItem>{
+            return listOf(
+                CartItem(
+                    id = "C1",
+                    eventId = "",
+                    eventName = "",
+                    eventImageUrl = "",
+                    tickets = 1
+                )
+            )
         }
     }

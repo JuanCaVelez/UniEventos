@@ -2,11 +2,18 @@ package com.unieventos.ui.screens.admin
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +26,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.Upload
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.unieventos.R
@@ -66,6 +76,7 @@ fun EventDetaiLAdminScreen(
     onNavigationBack: () -> Unit,
 ){
     var event by remember { mutableStateOf(Event())}
+    val context = LocalContext.current
 
     LaunchedEffect(eventId) {
         event = eventsViewModel.findById(eventId)!!
@@ -89,7 +100,8 @@ fun EventDetaiLAdminScreen(
                 event= event,
                 //padding = paddingValues,
                 eventsViewModel = eventsViewModel,
-                onNavigationHome = onNavigationHome
+                onNavigationHome = onNavigationHome,
+                context = context
             )
         }
 
@@ -102,6 +114,7 @@ fun EventDetaiLAdminScreen(
 
 fun EditEventForm(
     event: Event?,
+    context: Context,
     //padding: PaddingValues,
     eventsViewModel: EventsViewModel,
     onNavigationHome: () -> Unit
@@ -130,11 +143,28 @@ fun EditEventForm(
             citys = listOf(it.city)
             categories = listOf(it.category)
             description = it.description
-            quantity = it.price
+            quantity = it.quantity
+            price = it.price
             dateOfEvent = it.date
             imagenEvent = it.imageUrl
         }
 
+    }
+
+    val fileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            Log.e("URI", uri.toString())
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if(it){
+            Toast.makeText(context, "Permiso concedido", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(context, "Permiso denegado", Toast.LENGTH_SHORT).show()
+        }
     }
 
     Column (
@@ -263,18 +293,55 @@ fun EditEventForm(
                 .padding(16.dp)
         )
 
-        TextFieldForm(
-            value = imagenEvent,
-            onValueChange = {
-                imagenEvent = it
-            },
-            supportingText = "",
-            label = stringResource(id = R.string.imageEvent),
-            onValidate = {
-                imagenEvent.isBlank()
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            TextFieldForm(
+                modifier = Modifier.weight(0.8f),
+                value = imagenEvent,
+                onValueChange = {
+                    imagenEvent = it
+                },
+                supportingText = "",
+                label = stringResource(id = R.string.imageEvent),
+                onValidate = {
+                    imagenEvent.isBlank()
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
+            Button(
+                onClick = {
+                    val permissionCheckResult = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.READ_MEDIA_IMAGES
+                        )
+                    }else{
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+                        )
+                    }
+
+                    if(permissionCheckResult == PackageManager.PERMISSION_GRANTED){
+                        fileLauncher.launch("image/*")
+                    }else{
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                            permissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
+                        }else{
+                            permissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                        }
+                    }
+                }
+
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Upload,
+                    contentDescription = null
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
 

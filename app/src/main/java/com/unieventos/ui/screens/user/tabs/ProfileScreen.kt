@@ -57,6 +57,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             EditProfileUserForm(
                 padding = PaddingValues(0.dp),

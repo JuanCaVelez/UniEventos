@@ -5,6 +5,5 @@ data class CartItem(
     val eventId: String,
     val eventName: String,
     val eventImageUrl: String,
-    val locationName: String,
     val tickets: Int
 )

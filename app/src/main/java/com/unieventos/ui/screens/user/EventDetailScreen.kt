@@ -62,7 +62,6 @@ fun EventDetailScreen(
         event = eventsViewModel.findById(eventId)!!
     }
 
-
     Scaffold (
         topBar = {
             TopAppBarDetail(
@@ -152,7 +151,6 @@ fun EventDetailScreen(
                                 eventId = event.id,
                                 eventName = event.title,
                                 eventImageUrl = event.imageUrl,
-                                locationName = " ",
                                 tickets = 3
                             )
                         )
