@@ -1,6 +1,5 @@
 package com.unieventos.viewmodel
 
-import androidx.lifecycle.DEFAULT_ARGS_KEY
 import  androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth

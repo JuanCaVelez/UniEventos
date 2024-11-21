@@ -14,10 +14,4 @@ data class Event(
     val quantity: String = "",
     val price: String = "",
     val imageUrl: String = ""
-){
-/*
-    fun getLocation(nombre: String): Location?{
-        return locations.find { it.name == nombre }
-    }
-*/
-}
+)

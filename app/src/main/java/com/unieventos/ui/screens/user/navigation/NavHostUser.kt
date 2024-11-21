@@ -33,10 +33,8 @@ fun NavHostUser(
                 onNavigateToDetail = {
                     onNavigateToDetail(it)
                 },
-                onNavigateToCart = {
-                    onNavigateToCart(it)
-                },
-                eventsViewModel = eventsViewModel
+                eventsViewModel = eventsViewModel,
+                cartViewModel = cartViewModel
             )
         }
         composable<ItemTabUser.TabCoupons> {

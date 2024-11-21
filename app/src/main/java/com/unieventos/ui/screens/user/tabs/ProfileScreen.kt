@@ -46,11 +46,6 @@ fun ProfileScreen(
     val context = LocalContext.current
 
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "Editar Perfil") }
-            )
-        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -79,9 +74,9 @@ fun EditProfileUserForm(
     onNavigationBack: () -> Unit
 ) {
     val citys = listOf("Armenia", "Cali", "Medellin")
-    val user by usersViewModel.currentUser.collectAsState()
+    val user by usersViewModel.currentUser.collectAsState(initial = null)
 
-    if (user != null) {
+    if (user == null) {
         var name by rememberSaveable { mutableStateOf(user?.name ?: "") }
         var cedula by rememberSaveable { mutableStateOf(user?.id ?: "") }
         var city by rememberSaveable { mutableStateOf(user?.city ?: "") }

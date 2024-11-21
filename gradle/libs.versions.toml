@@ -16,7 +16,7 @@ hazeCompose = "0.7.3"
 googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.1"
 firebaseAuth = "23.1.0"
-
+cloudinary = "3.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +40,7 @@ coil-compose = {module = "io.coil-kt:coil-compose", version.ref = "coilCompose"}
 haze-compose = {group = "dev.chrisbanes.haze", name = "haze", version.ref = "hazeCompose"}
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+cloudinary-android = { group = "com.cloudinary", name = "cloudinary-android", version.ref = "cloudinary" }
 
 
 [plugins]

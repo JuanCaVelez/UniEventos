@@ -50,14 +50,6 @@ import kotlinx.coroutines.flow.asStateFlow
         }
 
         fun addItems(): List<CartItem>{
-            return listOf(
-                CartItem(
-                    id = "C1",
-                    eventId = "",
-                    eventName = "",
-                    eventImageUrl = "",
-                    tickets = 1
-                )
-            )
+            return emptyList()
         }
     }

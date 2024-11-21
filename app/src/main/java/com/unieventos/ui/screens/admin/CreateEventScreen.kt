@@ -43,6 +43,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,12 +54,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.cloudinary.Cloudinary
+import com.cloudinary.utils.ObjectUtils
 import com.unieventos.R
 import com.unieventos.model.Event
 import com.unieventos.ui.components.AppButton
 import com.unieventos.ui.components.DropDownMenu
 import com.unieventos.ui.components.TextFieldForm
 import com.unieventos.viewmodel.EventsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -130,6 +135,14 @@ fun CreateEventForm(
     onNavigationHome: () -> Unit
 ) {
 
+    val config = mapOf(
+        "cloud_name" to "images-tienda",
+        "api_key" to "578168161663346",
+        "api_secret" to "n-hVzz8x7FAVRGrZqz6fsJ_8bfs"
+    )
+    val cloudinary = Cloudinary(config)
+    val scope = rememberCoroutineScope()
+
     val citys = listOf("Armenia", "Pereira", "Manizales")
     val categories = listOf("Conciertos", "Obras de teatro", "Partidos Futbol")
 
@@ -149,6 +162,14 @@ fun CreateEventForm(
     val fileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             Log.e("URI", uri.toString())
+
+            scope.launch(Dispatchers.IO) {
+
+                val inputStream = context.contentResolver.openInputStream(uri)
+                inputStream?.use { stream ->
+                    val result = cloudinary.uploader().upload(stream, ObjectUtils.emptyMap())
+                }
+            }
         }
     }
 

@@ -9,13 +9,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.unieventos.ui.components.ItemEvento
+import com.unieventos.viewmodel.CartViewModel
 import com.unieventos.viewmodel.EventsViewModel
 
 @Composable
 fun EventsScreen(
     onNavigateToDetail: (String) -> Unit,
-    onNavigateToCart: (String) -> Unit,
     eventsViewModel: EventsViewModel,
+    cartViewModel: CartViewModel
 ){
     val events = eventsViewModel.events.collectAsState().value
 
@@ -28,7 +29,7 @@ fun EventsScreen(
             ItemEvento(
                 event = event,
                 onNavigateToDetail = onNavigateToDetail,
-                onNavigateToCart = onNavigateToCart
+                cartViewModel = cartViewModel
             )
         }
     }
